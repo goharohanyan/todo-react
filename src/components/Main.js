@@ -2,26 +2,29 @@ import React from 'react';
 import ListItems from "./ListItems";
 import ToDoHeader from "./ToDoHeader";
 import uniqueId from "uniqid";
+import AppHeader from "./AppHeader";
+import ThemeContext from "../contexts/ThemeContext";
 
-class Main extends React.Component{
+class Main extends React.Component {
 
     state = {
+        themeName: "dark",
         inputValue: "",
-        toDoItems: [{ done : false, name : "asd", id : uniqueId()}, {done: false, name :"dsa", id : uniqueId()}],
+        toDoItems: [{done: false, name: "asd", id: uniqueId()}, {done: true, name: "dsa", id: uniqueId()}],
     };
 
     onBtnClick = () => {
         const newState = [...this.state.toDoItems];
-        if(this.state.inputValue){
+        if (this.state.inputValue) {
             newState.push({
-                name : this.state.inputValue,
-                done : false,
-                id : uniqueId()
+                name: this.state.inputValue,
+                done: false,
+                id: uniqueId()
             });
         }
         this.setState({
-            toDoItems : newState,
-            inputValue : "",
+            toDoItems: newState,
+            inputValue: "",
         })
     };
 
@@ -31,35 +34,46 @@ class Main extends React.Component{
         });
     };
 
-    onBtnRemove = (index) => {
-        let uptadedArray = [...this.state.toDoItems];
-        uptadedArray.splice(index, 1);
+    onBtnRemove = (id) => {
+        let updatedArray = [...this.state.toDoItems];
+        updatedArray.splice(updatedArray.findIndex((el) => el.id === id), 1);
         this.setState({
-            toDoItems : uptadedArray,
+            toDoItems: updatedArray,
         })
-    }
+    };
 
-    onCheckboxChange = (event, id) => {
-        debugger;
+    onCheckboxChange = (id) => {
         let arr = [...this.state.toDoItems];
-        arr[id].done = event.target.checked;
+        const currentToDo = arr.find((el) => el.id === id);
+        const currentToDoIndex = arr.indexOf(currentToDo);
+        arr.splice(currentToDoIndex, 1, {
+            ...currentToDo,
+            done: !currentToDo.done
+        });
         this.setState({
-            toDoItems : arr,
+            toDoItems: arr,
         })
-    }
+    };
 
+    changeTheme = (value) => {
+        this.setState({
+            themeName: value
+        })
+    };
 
     render() {
         return (
-            <div>
-                <ToDoHeader inputValue={this.state.inputValue} onInputChange={this.onInputChange} onBtnClick={this.onBtnClick}/>
-                <ListItems toDoItems={this.state.toDoItems} onBtnRemove={this.onBtnRemove} 
-                    onCheckboxChange={this.onCheckboxChange}/>
-            </div>
+            <ThemeContext.Provider value = {this.state.themeName}>
+                <div>
+                    <AppHeader asd = {this.changeTheme}/>
+                    <ToDoHeader inputValue={this.state.inputValue} onInputChange={this.onInputChange}
+                                onBtnClick={this.onBtnClick}/>
+                    <ListItems toDoItems={this.state.toDoItems} onBtnRemove={this.onBtnRemove}
+                               onCheckboxChange={this.onCheckboxChange}/>
+                </div>
+            </ThemeContext.Provider>
         );
     }
 }
-
-
 
 export default Main;

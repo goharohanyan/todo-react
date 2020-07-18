@@ -7,12 +7,14 @@ import ThemeContext from "../contexts/ThemeContext";
 import { DARK_THEME_STYLES, LIGHT_THEME_STYLES } from '../constants/style';
 
 const wrapperDivStyle = {
-    width: 400,
+    width: '100%',
     margin: '0 auto',
+    padding: 0,
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    height: '100vh',
 }
 class Main extends React.Component {
 

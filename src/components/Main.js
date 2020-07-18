@@ -4,7 +4,16 @@ import ToDoHeader from "./ToDoHeader";
 import uniqueId from "uniqid";
 import AppHeader from "./AppHeader";
 import ThemeContext from "../contexts/ThemeContext";
+import { DARK_THEME_STYLES, LIGHT_THEME_STYLES } from '../constants/style';
 
+const wrapperDivStyle = {
+    width: 400,
+    margin: '0 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+}
 class Main extends React.Component {
 
     state = {
@@ -62,9 +71,13 @@ class Main extends React.Component {
     };
 
     render() {
+        const themeStyle = this.state.themeName === 'dark' ? DARK_THEME_STYLES : LIGHT_THEME_STYLES;
         return (
             <ThemeContext.Provider value = {this.state.themeName}>
-                <div>
+                <div style={{
+                    ...wrapperDivStyle,
+                    ...themeStyle,
+                }}>
                     <AppHeader asd = {this.changeTheme}/>
                     <ToDoHeader inputValue={this.state.inputValue} onInputChange={this.onInputChange}
                                 onBtnClick={this.onBtnClick}/>

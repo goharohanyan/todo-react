@@ -1,6 +1,19 @@
 import React from "react";
-import ThemeContext from "../contexts/ThemeContext";
-import { DARK_THEME_STYLES, LIGHT_THEME_STYLES } from "../constants/style";
+import DeleteIcon from '@material-ui/icons/Delete';
+import { IconButton, Checkbox } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+import { green } from '@material-ui/core/colors'
+
+
+const GreenCheckbox = withStyles({
+    root: {
+      color: '272C34',
+      '&$checked': {
+        color: green[600],
+      },
+    },
+    checked: {},
+  })((props) => <Checkbox color="default" {...props} />);
 
 const divStyle = {
     fontSize: 20,
@@ -11,25 +24,19 @@ const divStyle = {
     padding: '5px 10px',
 };
 
-export default class ListItem extends React.Component {
+function ListItem(props) {
 
-    render() {
-        let checked = "checked";
-        return (
-            <ThemeContext.Consumer>
-                {(themeName) => {
-                    return (<div className={this.props.toDo.done ? checked : ""} style={divStyle}>
-                        <input type="checkbox" checked={this.props.toDo.done} onChange={() => {
-                            this.props.onCheckboxChange(this.props.toDo.id)
-                        }
-                        }/>
-                        {this.props.toDo.name}
-                        <button onClick={() => {
-                            this.props.onBtnRemove(this.props.toDo.id)
-                        }}>X
-                        </button>
-                    </div>)
-                }}
-            </ThemeContext.Consumer>)
-    }
+    let checked = "checked";
+    return (<div className={props.toDo.done ? checked : ""} style={divStyle}>
+        <GreenCheckbox checked={props.toDo.done} onChange={() => {
+            props.onCheckboxChange(props.toDo.id)
+        }} />
+        {props.toDo.name}
+        <IconButton aria-label="delete" onClick={() => props.onBtnRemove(props.toDo.id)}>
+                <DeleteIcon />
+        </IconButton> 
+    </div>)
+
 }
+
+export default ListItem;

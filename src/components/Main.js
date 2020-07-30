@@ -1,13 +1,12 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ListItems from "./ListItems";
 import ToDoHeader from "./ToDoHeader";
 import uniqueId from "uniqid";
-import AppHeader from "./AppHeader";
-import ThemeContext from "../contexts/ThemeContext";
-import { DARK_THEME_STYLES, LIGHT_THEME_STYLES } from '../constants/style';
+import FilterButtons from './FilterButtons';
+import Search from './Search';
 
 const wrapperDivStyle = {
-    width: '100%',
+    width: '60%',
     margin: '0 auto',
     padding: 0,
     display: 'flex',
@@ -16,79 +15,93 @@ const wrapperDivStyle = {
     alignItems: 'center',
     height: '100vh',
 }
-class Main extends React.Component {
 
-    state = {
-        themeName: "dark",
-        inputValue: "",
-        toDoItems: [{done: false, name: "asd", id: uniqueId()}, {done: true, name: "dsa", id: uniqueId()}],
+function Main() {
+
+    const [inputValue, setInputValue] = useState('');
+    const [isFilteredBy, setIsFilteredBy] = useState('');
+    const [searchKey, setSearchKey] = useState('');
+    const [toDoItems, setToDoItems] = useState([]);
+
+    const onBtnClick = () => {
+        addNewItem();
     };
 
-    onBtnClick = () => {
-        const newState = [...this.state.toDoItems];
-        if (this.state.inputValue) {
-            newState.push({
-                name: this.state.inputValue,
+    const addNewItem = () => {
+        const newTodosList = [...toDoItems]
+        if (inputValue) {
+            newTodosList.push({
                 done: false,
+                name: inputValue,
                 id: uniqueId()
             });
         }
-        this.setState({
-            toDoItems: newState,
-            inputValue: "",
-        })
+        setToDoItems(newTodosList);
+        setInputValue("");
+    }
+
+    const onInputChange = (event) => setInputValue(event.target.value);
+
+    const onBtnRemove = (id) => {
+        
+        const arr = [...toDoItems];
+        arr.splice(arr.findIndex(el => el.id === id), 1)
+        setToDoItems(arr);
     };
 
-    onInputChange = (event) => {
-        this.setState({
-            inputValue: event.target.value
-        });
-    };
-
-    onBtnRemove = (id) => {
-        let updatedArray = [...this.state.toDoItems];
-        updatedArray.splice(updatedArray.findIndex((el) => el.id === id), 1);
-        this.setState({
-            toDoItems: updatedArray,
-        })
-    };
-
-    onCheckboxChange = (id) => {
-        let arr = [...this.state.toDoItems];
+    const onCheckboxChange = (id) => {
+        
+        const arr = [...toDoItems];
         const currentToDo = arr.find((el) => el.id === id);
         const currentToDoIndex = arr.indexOf(currentToDo);
         arr.splice(currentToDoIndex, 1, {
             ...currentToDo,
-            done: !currentToDo.done
-        });
-        this.setState({
-            toDoItems: arr,
+            done: !currentToDo.done,
         })
+        setToDoItems(arr);
     };
 
-    changeTheme = (value) => {
-        this.setState({
-            themeName: value
-        })
-    };
+    const onAllBtnClick = () => setIsFilteredBy('all');
 
-    render() {
-        const themeStyle = this.state.themeName === 'dark' ? DARK_THEME_STYLES : LIGHT_THEME_STYLES;
-        return (
-            <ThemeContext.Provider value = {this.state.themeName}>
-                <div style={{
-                    ...wrapperDivStyle,
-                    ...themeStyle,
-                }}>
-                    <AppHeader asd = {this.changeTheme}/>
-                    <ToDoHeader inputValue={this.state.inputValue} onInputChange={this.onInputChange}
-                                onBtnClick={this.onBtnClick}/>
-                    <ListItems toDoItems={this.state.toDoItems} onBtnRemove={this.onBtnRemove}
-                               onCheckboxChange={this.onCheckboxChange}/>
-                </div>
-            </ThemeContext.Provider>
-        );
+    const onActiveBtnClick = () => setIsFilteredBy('active');
+
+    const onCompletedBtnClick = () => setIsFilteredBy('completed');
+
+    const onSearchBar = (event) => setSearchKey(event.target.value);
+
+    const afterSearch = () => setSearchKey('');
+
+    const filterToDoItems = () => {
+        if (isFilteredBy === 'active') {
+            if(searchKey){
+                return toDoItems.filter(el => !el.done && el.name.includes(searchKey));
+            } else {
+                return toDoItems.filter(el => !el.done);
+            }
+        } else if (isFilteredBy === 'completed') {
+            if(searchKey){
+                return toDoItems.filter(el => el.done && el.name.includes(searchKey));
+            } else {
+                return toDoItems.filter(el => el.done);
+            }
+        } else if(searchKey){
+            return toDoItems.filter(el => el.name.includes(searchKey));
+        } else {
+            return toDoItems;
+        }
     }
+
+    return (
+        <div style={wrapperDivStyle}>
+
+            <ToDoHeader inputValue={inputValue} onInputChange={onInputChange}
+                        onBtnClick={onBtnClick} onEnterPress={addNewItem} />
+            <Search onSearch={onSearchBar} onDelete={afterSearch} />
+            <ListItems toDoItems={filterToDoItems()} onBtnRemove={onBtnRemove} onCheckboxChange={onCheckboxChange}/>
+            <FilterButtons onAllBtnClick={onAllBtnClick} 
+                        onActiveBtnClick={onActiveBtnClick} onCompletedBtnClick={onCompletedBtnClick}/>
+        </div>
+    );
 }
 
 export default Main;
